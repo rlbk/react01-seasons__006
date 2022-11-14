@@ -1,17 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import SeasonDisplay from "./SeasonDisplay";
+import Spiner from "./Spiner";
+import "./style/App.css";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+class App extends React.Component {
+  state = { latitude: null, errorMessage: "" };
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+  componentDidMount() {
+    window.navigator.geolocation.getCurrentPosition(
+      (position) => this.setState({ latitude: position.coords.latitude }),
+      (err) => this.setState({ errorMessage: err.message })
+    );
+  }
+
+  conditionRender() {
+    if (this.state.errorMessage && !this.state.latitude) {
+      return <h1>Error : {this.state.errorMessage}</h1>;
+    }
+    if (!this.state.errorMessage && this.state.latitude) {
+      return <SeasonDisplay lat={this.state.latitude} />;
+    }
+
+    return <Spiner message="Please allow your location..!" />;
+  }
+
+  render() {
+    return <div className="border red">{this.conditionRender()}</div>;
+  }
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
